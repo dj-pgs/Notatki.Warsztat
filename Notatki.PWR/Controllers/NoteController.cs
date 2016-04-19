@@ -20,7 +20,14 @@ namespace Notatki.PWR.Controllers
         {
             if (ModelState.IsValid)
             {
-                //tu cos bede robil
+                var note = new Note();
+                note.Title = model.Title;
+                note.Content = model.Content;
+                using (var ctx = new ApplicationDbContext())
+                {
+                    ctx.Notes.Add(note);
+                    ctx.SaveChanges();
+                }
                 return RedirectToAction("Index");
             }
             return View(model);
