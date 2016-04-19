@@ -65,5 +65,58 @@ namespace Notatki.PWR.Controllers
             }
             return RedirectToAction("List");
         }
+
+        public ActionResult Edit(int id)
+        {
+            var viewmodel = new EditViewModel();
+            using (var ctx=new ApplicationDbContext())
+            {
+                var note = ctx.Notes.Single(n => n.Id == id);
+                viewmodel.Title = note.Title;
+                viewmodel.Content = note.Content;
+                viewmodel.Id = note.Id;
+            }
+            return View(viewmodel);
+        }
+
+        [HttpPost]
+        public ActionResult Edit(EditNoteDto model)
+        {
+            if (ModelState.IsValid)
+            {
+                using (var ctx=new ApplicationDbContext())
+                {
+                    var note = ctx.Notes.Single(n => n.Id == model.Id);
+                    note.Title = model.Title;
+                    note.Content = model.Content;
+                    ctx.SaveChanges();
+                }
+                return RedirectToAction("List");
+            }
+            return View(new EditViewModel()
+            {
+                Id = model.Id,
+                Title = model.Title,
+                Content = model.Content
+            });
+        }
+    }
+
+    public class EditNoteDto
+    {
+        public int Id { get; set; }
+
+        public string Title { get; set; }
+
+        public string Content { get; set; }
+    }
+
+    public class EditViewModel
+    {
+        public int Id { get; set; }
+
+        public string Title { get; set; }
+
+        public string Content { get; set; }
     }
 }
