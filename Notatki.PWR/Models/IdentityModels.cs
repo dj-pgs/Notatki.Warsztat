@@ -30,7 +30,12 @@ namespace Notatki.PWR.Models
             return new ApplicationDbContext();
         }
 
-        public DbSet<Note> Notes { get; set; } 
+        public DbSet<Note> Notes { get; set; }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+        }
     }
 
     public interface INoteContext

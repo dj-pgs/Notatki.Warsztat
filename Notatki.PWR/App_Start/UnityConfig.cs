@@ -38,8 +38,11 @@ namespace Notatki.PWR.App_Start
             // container.LoadConfiguration();
 
             // TODO: Register your types here
-            container.RegisterType<INoteService, NoteService>();
-            container.RegisterType<INoteContext, ApplicationDbContext>();
+            container.RegisterType<INoteService, NoteService>(new PerRequestLifetimeManager());
+            container.RegisterType<INoteContext, ApplicationDbContext>(new PerRequestLifetimeManager());
+
+
+
         }
     }
 }
