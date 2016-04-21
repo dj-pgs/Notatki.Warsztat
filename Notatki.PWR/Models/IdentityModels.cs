@@ -18,7 +18,7 @@ namespace Notatki.PWR.Models
         }
     }
 
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, INoteContext
     {
         public ApplicationDbContext()
             : base("DefaultConnection", throwIfV1Schema: false)
@@ -31,6 +31,13 @@ namespace Notatki.PWR.Models
         }
 
         public DbSet<Note> Notes { get; set; } 
+    }
+
+    public interface INoteContext
+    {
+        DbSet<Note> Notes { get; set; }
+
+        int SaveChanges();
     }
 
     public class Note

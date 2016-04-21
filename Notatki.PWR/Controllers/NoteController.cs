@@ -10,11 +10,11 @@ namespace Notatki.PWR.Controllers
 {
     public class NoteController : Controller
     {
-        private NoteService _noteService;
+        private INoteService _noteService;
 
-        public NoteController()
+        public NoteController(INoteService noteService)
         {
-            _noteService=new NoteService();
+            _noteService = noteService;
         }
 
         // GET: Note

@@ -4,51 +4,51 @@ using Notatki.PWR.Models;
 
 namespace Notatki.PWR.Services
 {
-    public class NoteService
+    public class NoteService : INoteService
     {
+        private INoteContext _noteContext;
+
+        public NoteService(INoteContext noteContext)
+        {
+            _noteContext = noteContext;
+        }
+
         public void AddNewNote(AddNoteModel model)
         {
             var note = new Note();
             note.Title = model.Title;
             note.Content = model.Content;
-            using (var ctx = new ApplicationDbContext())
-            {
-                ctx.Notes.Add(note);
-                ctx.SaveChanges();
-            }
+            _noteContext.Notes.Add(note);
+            _noteContext.SaveChanges();
         }
 
         public void DeleteNote(int id)
         {
-            using (var ctx = new ApplicationDbContext())
-            {
-                var note = ctx.Notes.Single(n => n.Id == id);
-                ctx.Notes.Remove(note);
-                ctx.SaveChanges();
-            }
+
+            var note = _noteContext.Notes.Single(n => n.Id == id);
+            _noteContext.Notes.Remove(note);
+            _noteContext.SaveChanges();
+
         }
 
         public void UpdateNote(EditNoteDto model)
         {
-            using (var ctx = new ApplicationDbContext())
-            {
-                var note = ctx.Notes.Single(n => n.Id == model.Id);
-                note.Title = model.Title;
-                note.Content = model.Content;
-                ctx.SaveChanges();
-            }
+            var note = _noteContext.Notes.Single(n => n.Id == model.Id);
+            note.Title = model.Title;
+            note.Content = model.Content;
+            _noteContext.SaveChanges();
+
         }
 
         public EditViewModel GetNoteForEdit(int id)
         {
             var viewmodel = new EditViewModel();
-            using (var ctx = new ApplicationDbContext())
-            {
-                var note = ctx.Notes.Single(n => n.Id == id);
-                viewmodel.Title = note.Title;
-                viewmodel.Content = note.Content;
-                viewmodel.Id = note.Id;
-            }
+
+            var note = _noteContext.Notes.Single(n => n.Id == id);
+            viewmodel.Title = note.Title;
+            viewmodel.Content = note.Content;
+            viewmodel.Id = note.Id;
+
             return viewmodel;
         }
 
@@ -56,16 +56,14 @@ namespace Notatki.PWR.Services
         {
             var viewmodel = new ListNotesViewModel();
 
-            using (var ctx = new ApplicationDbContext())
+            var notes = _noteContext.Notes.Select(note => new ListNoteItem()
             {
-                var notes = ctx.Notes.Select(note => new ListNoteItem()
-                {
-                    Title = note.Title,
-                    Id = note.Id.ToString()
-                }).ToList();
+                Title = note.Title,
+                Id = note.Id.ToString()
+            }).ToList();
 
-                viewmodel.Notes = notes;
-            }
+            viewmodel.Notes = notes;
+
 
             return viewmodel;
         }
