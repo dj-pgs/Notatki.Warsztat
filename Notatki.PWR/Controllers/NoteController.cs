@@ -4,11 +4,19 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using Notatki.PWR.Models;
+using Notatki.PWR.Services;
 
 namespace Notatki.PWR.Controllers
 {
     public class NoteController : Controller
     {
+        private NoteService _noteService;
+
+        public NoteController()
+        {
+            _noteService=new NoteService();
+        }
+
         // GET: Note
         public ActionResult Index()
         {
@@ -21,14 +29,7 @@ namespace Notatki.PWR.Controllers
         {
             if (ModelState.IsValid)
             {
-                var note = new Note();
-                note.Title = model.Title;
-                note.Content = model.Content;
-                using (var ctx = new ApplicationDbContext())
-                {
-                    ctx.Notes.Add(note);
-                    ctx.SaveChanges();
-                }
+                _noteService.AddNewNote(model);
                 TempData["Success"] = "Notatka została zapisana!";
                 return RedirectToAction("Index");
             }
@@ -38,18 +39,7 @@ namespace Notatki.PWR.Controllers
 
         public ActionResult List()
         {
-            var viewmodel = new ListNotesViewModel();
-
-            using (var ctx = new ApplicationDbContext())
-            {
-                var notes = ctx.Notes.Select(note => new ListNoteItem()
-                {
-                    Title = note.Title,
-                    Id = note.Id.ToString()
-                }).ToList();
-
-                viewmodel.Notes = notes;
-            }
+            var viewmodel = _noteService.GetNotes();
             return View(viewmodel);
         }
 
@@ -57,25 +47,13 @@ namespace Notatki.PWR.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id)
         {
-            using (var ctx=new ApplicationDbContext())
-            {
-                var note = ctx.Notes.Single(n => n.Id == id);
-                ctx.Notes.Remove(note);
-                ctx.SaveChanges();
-            }
+            _noteService.DeleteNote(id);
             return RedirectToAction("List");
         }
 
         public ActionResult Edit(int id)
         {
-            var viewmodel = new EditViewModel();
-            using (var ctx=new ApplicationDbContext())
-            {
-                var note = ctx.Notes.Single(n => n.Id == id);
-                viewmodel.Title = note.Title;
-                viewmodel.Content = note.Content;
-                viewmodel.Id = note.Id;
-            }
+            var viewmodel = _noteService.GetNoteForEdit(id);
             return View(viewmodel);
         }
 
@@ -84,13 +62,7 @@ namespace Notatki.PWR.Controllers
         {
             if (ModelState.IsValid)
             {
-                using (var ctx=new ApplicationDbContext())
-                {
-                    var note = ctx.Notes.Single(n => n.Id == model.Id);
-                    note.Title = model.Title;
-                    note.Content = model.Content;
-                    ctx.SaveChanges();
-                }
+                _noteService.UpdateNote(model);
                 return RedirectToAction("List");
             }
             return View(new EditViewModel()
