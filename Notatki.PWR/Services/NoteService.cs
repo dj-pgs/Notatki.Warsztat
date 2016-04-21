@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using AutoMapper;
 using Notatki.PWR.Controllers;
 using Notatki.PWR.Models;
 
@@ -15,9 +16,7 @@ namespace Notatki.PWR.Services
 
         public void AddNewNote(AddNoteModel model)
         {
-            var note = new Note();
-            note.Title = model.Title;
-            note.Content = model.Content;
+            var note = Mapper.Map<Note>(model);
             _noteContext.Notes.Add(note);
             _noteContext.SaveChanges();
         }
@@ -34,37 +33,24 @@ namespace Notatki.PWR.Services
         public void UpdateNote(EditNoteDto model)
         {
             var note = _noteContext.Notes.Single(n => n.Id == model.Id);
-            note.Title = model.Title;
-            note.Content = model.Content;
+            Mapper.Map(model, note);
             _noteContext.SaveChanges();
 
         }
 
         public EditViewModel GetNoteForEdit(int id)
         {
-            var viewmodel = new EditViewModel();
-
             var note = _noteContext.Notes.Single(n => n.Id == id);
-            viewmodel.Title = note.Title;
-            viewmodel.Content = note.Content;
-            viewmodel.Id = note.Id;
-
+            var viewmodel = Mapper.Map<EditViewModel>(note);
             return viewmodel;
         }
 
         public ListNotesViewModel GetNotes()
         {
-            var viewmodel = new ListNotesViewModel();
 
-            var notes = _noteContext.Notes.Select(note => new ListNoteItem()
-            {
-                Title = note.Title,
-                Id = note.Id.ToString()
-            }).ToList();
+            var notes = _noteContext.Notes.ToList();
 
-            viewmodel.Notes = notes;
-
-
+            var viewmodel = Mapper.Map<ListNotesViewModel>(notes);
             return viewmodel;
         }
     }
